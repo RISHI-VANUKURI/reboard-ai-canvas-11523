@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -13,15 +12,6 @@ interface ImageCarouselProps {
 }
 
 const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => {
-  const autoplayPlugin = useRef(
-    Autoplay({ 
-      delay: autoPlayDelay, 
-      stopOnInteraction: false,
-      stopOnMouseEnter: false,
-      rootNode: (emblaRoot) => emblaRoot.parentElement,
-    })
-  );
-
   return (
     <section className="w-full bg-transparent py-12">
       <div className="container mx-auto px-4">
@@ -29,9 +19,14 @@ const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => 
           opts={{
             loop: true,
             align: "start",
-            dragFree: false,
           }}
-          plugins={[autoplayPlugin.current]}
+          plugins={[
+            Autoplay({
+              delay: autoPlayDelay,
+              stopOnInteraction: false,
+              stopOnMouseEnter: false,
+            })
+          ]}
           className="w-full"
         >
           <CarouselContent className="-ml-0">
