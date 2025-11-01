@@ -15,17 +15,21 @@ const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => 
   const apiRef = useRef<CarouselApi | null>(null);
   const intervalRef = useRef<number | null>(null);
 
-  useEffect(() => {
+  const startAutoplay = () => {
     if (!apiRef.current) return;
-
     if (intervalRef.current) window.clearInterval(intervalRef.current);
     intervalRef.current = window.setInterval(() => {
       apiRef.current?.scrollNext();
     }, autoPlayDelay);
+  };
 
+  useEffect(() => {
+    // Restart when delay changes
+    startAutoplay();
     return () => {
       if (intervalRef.current) window.clearInterval(intervalRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoPlayDelay]);
 
   return (
@@ -40,6 +44,8 @@ const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => 
           }}
           setApi={(api) => {
             apiRef.current = api;
+            // Start autoplay once API becomes available
+            startAutoplay();
           }}
           className="w-full"
         >
@@ -57,6 +63,7 @@ const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => 
                       background: "none",
                       borderRadius: 0,
                     }}
+                    loading="lazy"
                   />
                 </div>
               </CarouselItem>
