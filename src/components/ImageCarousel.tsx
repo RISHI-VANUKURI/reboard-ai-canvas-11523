@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+import { useRef } from "react";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
 interface CarouselImage {
@@ -13,42 +13,48 @@ interface ImageCarouselProps {
 }
 
 const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => {
+  const autoplayPlugin = useRef(
+    Autoplay({ 
+      delay: autoPlayDelay, 
+      stopOnInteraction: false,
+      stopOnMouseEnter: false,
+      rootNode: (emblaRoot) => emblaRoot.parentElement,
+    })
+  );
+
   return (
-    <section className="w-full bg-transparent">
-      <Carousel
-        opts={{
-          loop: true,
-          dragFree: false,
-          watchDrag: false,
-        }}
-        plugins={[
-          Autoplay({
-            delay: autoPlayDelay,
-            stopOnInteraction: false,
-          }),
-        ]}
-        className="w-full"
-      >
-        <CarouselContent className="-ml-0">
-          {images.map((image, index) => (
-            <CarouselItem key={index} className="pl-0">
-              <div className="w-full h-full">
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  className="w-full h-full object-cover"
-                  style={{
-                    border: "none",
-                    boxShadow: "none",
-                    background: "none",
-                    borderRadius: 0,
-                  }}
-                />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+    <section className="w-full bg-transparent py-12">
+      <div className="container mx-auto px-4">
+        <Carousel
+          opts={{
+            loop: true,
+            align: "start",
+            dragFree: false,
+          }}
+          plugins={[autoplayPlugin.current]}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-0">
+            {images.map((image, index) => (
+              <CarouselItem key={index} className="pl-0">
+                <div className="w-full aspect-video">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-full object-cover"
+                    style={{
+                      border: "none",
+                      boxShadow: "none",
+                      background: "none",
+                      borderRadius: 0,
+                    }}
+                  />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
     </section>
   );
 };
