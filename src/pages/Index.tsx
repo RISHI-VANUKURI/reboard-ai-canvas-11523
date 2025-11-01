@@ -6,7 +6,7 @@ import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 import PromoPopup from "@/components/PromoPopup";
-import ImageCarousel from "@/components/ImageCarousel";
+
 import promo1 from "@/assets/promo-1.png";
 import promo2 from "@/assets/promo-2.png";
 import promo3 from "@/assets/promo-3.png";
@@ -30,18 +30,13 @@ const Index = () => {
     },
   ];
 
-  const carouselImages = [
-    { src: "https://example.com/img1.jpg", alt: "slide 1" },
-    { src: "https://example.com/img2.jpg", alt: "slide 2" },
-    { src: "https://example.com/img3.jpg", alt: "slide 3" },
-  ];
 
   return (
     <div className="min-h-screen">
       <PromoPopup offers={promoOffers} />
       <Navbar />
       <Hero />
-      <ImageCarousel images={carouselImages} autoPlayDelay={3000} />
+      
       <Services />
       <Mission />
       <Testimonials />
