@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 
 interface PromoPopupProps {
@@ -21,7 +22,18 @@ interface PromoPopupProps {
 const PromoPopup = ({ offers }: PromoPopupProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
-  const STORAGE_KEY = "promo-popup-shown";
+const STORAGE_KEY = "promo-popup-shown";
+  const apiRef = useRef<CarouselApi | null>(null);
+  const intervalRef = useRef<number | null>(null);
+  const AUTOPLAY_DELAY = 3000;
+
+  const startAutoplay = () => {
+    if (!apiRef.current) return;
+    if (intervalRef.current) window.clearInterval(intervalRef.current);
+    intervalRef.current = window.setInterval(() => {
+      apiRef.current?.scrollNext();
+    }, AUTOPLAY_DELAY);
+  };
 
   useEffect(() => {
     // Check if popup was already shown in this session
@@ -39,12 +51,25 @@ const PromoPopup = ({ offers }: PromoPopupProps) => {
     }
   }, [offers.length]);
 
+// Autoplay management: start when visible, stop on hide/unmount
+  useEffect(() => {
+    if (isVisible && offers.length > 1) {
+      startAutoplay();
+    }
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+    };
+  }, [isVisible, offers.length]);
+
   const handleClose = () => {
     setIsVisible(false);
     // Mark as shown in session storage
     sessionStorage.setItem(STORAGE_KEY, "true");
     // Re-enable body scroll
     document.body.style.overflow = "unset";
+    // Stop autoplay and release API
+    if (intervalRef.current) window.clearInterval(intervalRef.current);
+    apiRef.current = null;
   };
 
   const handleContactClick = () => {
@@ -79,7 +104,14 @@ const PromoPopup = ({ offers }: PromoPopupProps) => {
 
           {/* Carousel */}
           <div className="p-4 pb-3">
-            <Carousel className="w-full">
+            <Carousel
+              opts={{ loop: true, align: "start", watchDrag: false }}
+              setApi={(api) => {
+                apiRef.current = api;
+                startAutoplay();
+              }}
+              className="w-full"
+            >
               <CarouselContent>
                 {offers.map((offer) => (
                   <CarouselItem key={offer.id}>
@@ -88,6 +120,7 @@ const PromoPopup = ({ offers }: PromoPopupProps) => {
                         src={offer.image}
                         alt={offer.alt}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     </div>
                   </CarouselItem>
