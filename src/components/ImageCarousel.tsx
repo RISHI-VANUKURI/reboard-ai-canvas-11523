@@ -24,7 +24,6 @@ const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => 
             Autoplay({
               delay: autoPlayDelay,
               stopOnInteraction: false,
-              stopOnMouseEnter: false,
             })
           ]}
           className="w-full"
@@ -37,12 +36,6 @@ const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => 
                     src={image.src}
                     alt={image.alt}
                     className="w-full h-full object-cover"
-                    style={{
-                      border: "none",
-                      boxShadow: "none",
-                      background: "none",
-                      borderRadius: 0,
-                    }}
                   />
                 </div>
               </CarouselItem>
