@@ -45,6 +45,13 @@ const STORAGE_KEY = "promo-popup-shown";
         setIsVisible(true);
         // Prevent body scroll when popup is open
         document.body.style.overflow = "hidden";
+        
+        // Play notification sound
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSyBzvLTgjMGHm3A7+OZSA0PVqzn77BdGAg+ltzy0H4pBSp+zPLaizsIGGS57OihUBELTKXh8bllHAU2jdXyz3wlBSh6yu/flkINElmy6+yjVBQJQJzd8sFuJAUuhM/z1YU2Bhxqvu7mnEoPElyx7O6mVRUJP5zb8r9qIwUsgs/z04IyBh1rwO7mnEoPElyx7O6mVRUJP5zb8r9qIwUsgs/z04IyBh1rwO7mnEoPElyx7O6mVRUJP5zb8r9qIwUsgs/z04IyBh1rwO7mnEoPElyx7O6mVRUJP5zb8r9qIwUsgs/z04IyBh1rwO7mnEoPElyx7O6mVRUJP5zb8r9qIwUsgs/z04IyBh1rwO7mnEoPElyx7O6mVRUJP5zb8r9qIwUsgs/z04IyBh1rwO7mnEoPElyx7O6mVRUJP5zb8r9qIwUsgs/z04IyBh1rwO7mnEoPElyx7O6mVRUJP5zb8r9qIwUsgs/z04IyBh1rwO7mnEoPElyx7O6mVRUJP5zb8r9qIwUsgs/z04IyBh1rwO7mnEo=');
+        audio.volume = 0.3;
+        audio.play().catch(() => {
+          // Autoplay prevented - this is fine
+        });
       }, 1000);
 
       return () => clearTimeout(timer);
@@ -62,14 +69,26 @@ const STORAGE_KEY = "promo-popup-shown";
   }, [isVisible, offers.length]);
 
   const handleClose = () => {
-    setIsVisible(false);
-    // Mark as shown in session storage
-    sessionStorage.setItem(STORAGE_KEY, "true");
-    // Re-enable body scroll
-    document.body.style.overflow = "unset";
-    // Stop autoplay and release API
-    if (intervalRef.current) window.clearInterval(intervalRef.current);
-    apiRef.current = null;
+    // Start fade out animation
+    const modal = document.querySelector('.promo-modal');
+    const overlay = document.querySelector('.promo-overlay');
+    
+    if (modal && overlay) {
+      modal.classList.add('animate-fade-out', 'animate-scale-out');
+      overlay.classList.add('animate-fade-out');
+      
+      // Wait for animation to complete before hiding
+      setTimeout(() => {
+        setIsVisible(false);
+        // Mark as shown in session storage
+        sessionStorage.setItem(STORAGE_KEY, "true");
+        // Re-enable body scroll
+        document.body.style.overflow = "unset";
+        // Stop autoplay and release API
+        if (intervalRef.current) window.clearInterval(intervalRef.current);
+        apiRef.current = null;
+      }, 300);
+    }
   };
 
   const handleContactClick = () => {
@@ -83,14 +102,14 @@ const STORAGE_KEY = "promo-popup-shown";
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] animate-fade-in"
+        className="promo-overlay fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] animate-fade-in"
         onClick={handleClose}
       />
 
       {/* Popup Modal */}
       <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
         <div
-          className="relative w-full max-w-4xl bg-background rounded-2xl shadow-large overflow-hidden animate-scale-in pointer-events-auto"
+          className="promo-modal relative w-full max-w-4xl bg-background rounded-2xl shadow-large overflow-hidden animate-fade-in animate-scale-in pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
