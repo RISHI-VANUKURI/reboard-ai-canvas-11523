@@ -1,5 +1,5 @@
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
+import { useEffect, useRef } from "react";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 
 interface CarouselImage {
   src: string;
@@ -12,6 +12,22 @@ interface ImageCarouselProps {
 }
 
 const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => {
+  const apiRef = useRef<CarouselApi | null>(null);
+  const intervalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!apiRef.current) return;
+
+    if (intervalRef.current) window.clearInterval(intervalRef.current);
+    intervalRef.current = window.setInterval(() => {
+      apiRef.current?.scrollNext();
+    }, autoPlayDelay);
+
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+    };
+  }, [autoPlayDelay]);
+
   return (
     <section className="w-full bg-transparent py-12">
       <div className="container mx-auto px-4">
@@ -19,13 +35,12 @@ const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => 
           opts={{
             loop: true,
             align: "start",
+            dragFree: false,
+            watchDrag: false,
           }}
-          plugins={[
-            Autoplay({
-              delay: autoPlayDelay,
-              stopOnInteraction: false,
-            })
-          ]}
+          setApi={(api) => {
+            apiRef.current = api;
+          }}
           className="w-full"
         >
           <CarouselContent className="-ml-0">
@@ -36,6 +51,12 @@ const ImageCarousel = ({ images, autoPlayDelay = 3000 }: ImageCarouselProps) => 
                     src={image.src}
                     alt={image.alt}
                     className="w-full h-full object-cover"
+                    style={{
+                      border: "none",
+                      boxShadow: "none",
+                      background: "none",
+                      borderRadius: 0,
+                    }}
                   />
                 </div>
               </CarouselItem>
